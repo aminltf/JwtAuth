@@ -6,11 +6,10 @@ namespace Domain.Entities;
 
 public class User : BaseEntity<int>
 {
-    public User() : base()
+    public User()
     {
 
     }
-
     public string Username { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
