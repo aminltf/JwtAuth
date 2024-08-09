@@ -4,10 +4,14 @@ using Domain.Common;
 
 namespace Domain.Entities;
 
-public class User(int userId, string username, string email, string password) : BaseEntity<int>()
+public class User : BaseEntity<int>
 {
-    public int UserId { get; set; } = userId;
-    public string Username { get; set; } = username;
-    public string Email { get; set; } = email;
-    public string Password { get; set; } = password;
+    public User() : base()
+    {
+
+    }
+
+    public string Username { get; set; }
+    public string Email { get; set; }
+    public string Password { get; set; }
 }
