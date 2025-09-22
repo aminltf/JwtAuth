@@ -1,14 +1,12 @@
-﻿#nullable disable
+﻿using FluentValidation;
 
-using FluentValidation;
+namespace Application.Features.Auth.DTOs;
 
-namespace Application.Dtos;
+public record SignupRequest(string Username, string Email, string Password, string PasswordConfirm);
 
-public record Signup(string Username, string Email, string Password, string PasswordHash);
-
-public class SignupValidator : AbstractValidator<Signup>
+public class SignupRequestValidator : AbstractValidator<SignupRequest>
 {
-    public SignupValidator()
+    public SignupRequestValidator()
     {
         // Validate that Name is required and not empty
         RuleFor(signup => signup.Username)
@@ -25,7 +23,7 @@ public class SignupValidator : AbstractValidator<Signup>
             .MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
 
         // Validate that PasswordHash matches Password
-        RuleFor(signup => signup.PasswordHash)
+        RuleFor(signup => signup.PasswordConfirm)
             .NotEmpty().WithMessage("Password confirmation is required.")
             .Equal(signup => signup.Password).WithMessage("Passwords do not match.");
     }

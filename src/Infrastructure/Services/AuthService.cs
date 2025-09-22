@@ -1,7 +1,5 @@
-﻿#nullable disable
-
-using Application.Dtos;
-using Application.Interfaces;
+﻿using Application.Common.Abstractions.Services;
+using Application.Features.Auth.DTOs;
 using Domain.Entities;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +9,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Services;
 
-public class UserRepository : IUserRepository
+public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
 
-    public UserRepository(AppDbContext context, IConfiguration configuration)
+    public AuthService(AppDbContext context, IConfiguration configuration)
     {
         _context = context; _configuration = configuration;
     }
@@ -32,7 +30,7 @@ public class UserRepository : IUserRepository
         var userClaims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Email, user.Email),
         };
 
@@ -45,31 +43,31 @@ public class UserRepository : IUserRepository
             );
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    
-    public async Task<LoginResponse> Login(Login login)
+
+    public async Task<LoginResponse> Login(LoginRequest login)
     {
-        var getUser = await FindUserByEmail(login.Email);
-        if (getUser == null) 
+        var email = await FindUserByEmail(login.Email);
+        if (email == null)
             return new LoginResponse(false, "User Not Found.");
 
-        bool checkPassword = BCrypt.Net.BCrypt.Verify(login.Password, getUser.Password);
-        if (checkPassword) 
-            return new LoginResponse(true, "Login Succeeded.", GenerateJwtToken(getUser));
-        else 
+        bool checkPassword = BCrypt.Net.BCrypt.Verify(login.Password, email.PasswordHash);
+        if (checkPassword)
+            return new LoginResponse(true, "Login Succeeded.", GenerateJwtToken(email));
+        else
             return new LoginResponse(false, "Login Failed");
     }
 
-    public async Task<SignupResponse> Signup(Signup signup)
+    public async Task<SignupResponse> Signup(SignupRequest signup)
     {
-        var getUser = await FindUserByEmail(signup.Email);
-        if (getUser == null)
+        var email = await FindUserByEmail(signup.Email);
+        if (email == null)
             return new SignupResponse(false, "User Already Exists.");
 
         _context.Users.Add(new User()
         {
-            Username = signup.Username,
+            UserName = signup.Username,
             Email = signup.Email,
-            Password = BCrypt.Net.BCrypt.HashPassword(signup.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(signup.Password)
         });
         await _context.SaveChangesAsync();
         return new SignupResponse(true, "Signup Completed.");

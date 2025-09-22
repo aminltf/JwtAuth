@@ -1,16 +1,12 @@
-﻿#nullable disable
-
-using Domain.Common;
+﻿using Domain.Common.Base;
 
 namespace Domain.Entities;
 
-public class User : BaseEntity<int>
+public class User : AuditableBase<int>
 {
-    public User()
-    {
+    public string UserName { get; set; } = default!;
+    public string Email { get; set; } = default!;
+    public string PasswordHash { get; set; } = default!;
 
-    }
-    public string Username { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
+    public User() { } // For EF Core
 }

@@ -1,8 +1,6 @@
-﻿#nullable disable
-
-using Application.Interfaces;
+﻿using Application.Common.Abstractions.Services;
 using Infrastructure.Context;
-using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -41,7 +39,7 @@ public static class ServicesContainer
             };
         });
 
-        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuthService, AuthService>();
         return services;
     }
 }
